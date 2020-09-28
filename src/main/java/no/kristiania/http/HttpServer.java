@@ -64,7 +64,9 @@ public class HttpServer {
                     "Content-Type: " + contentType + "\r\n" +
                     "\r\n";
 
+            // Write the response back to the client
             clientSocket.getOutputStream().write(response.getBytes());
+
             new FileInputStream(file).transferTo(clientSocket.getOutputStream());
         }
 
