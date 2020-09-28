@@ -42,6 +42,14 @@ public class HttpServer {
 
 
         int questionPos = requestTarget.indexOf('?');
+
+        String requestPath;
+        if (questionPos != -1) {
+            requestPath = requestTarget.substring(0, questionPos);
+        } else {
+            requestPath = requestTarget;
+        }
+
         if (questionPos != -1) {
             // body = helloo
             QueryString queryString = new QueryString(requestTarget.substring(questionPos+1));
@@ -52,8 +60,19 @@ public class HttpServer {
                 statusCode = queryString.getParameter("status");
             }
 
-        } else {
-            File file = new File(contentRoot, requestTarget);
+        } else if (!requestPath.equals("/echo")){
+            File file = new File(contentRoot, requestPath);
+            if (!file.exists()) {
+                body = file + " does not exist";
+                String response = "HTTP/1.1 404 Not Found\r\n" +
+                        "Content-Length: " + body.length() + "\r\n" +
+                        "\r\n" +
+                        body;
+
+                // Write the response back to the client
+                clientSocket.getOutputStream().write(response.getBytes());
+                return;
+            }
             statusCode = "200";
             String contentType = "text/plain";
             if (file.getName().endsWith(".html")){
