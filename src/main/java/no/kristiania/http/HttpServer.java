@@ -33,11 +33,15 @@ public class HttpServer {
         String requestTarget = requestLine.split(" ")[1];
         // Example GET /echo?body=hello HTTP/1.1
         String statusCode = "200";
+        int contentLength = 29;
 
         int questionPos = requestTarget.indexOf('?');
         if (questionPos != -1) {
             // body = helloo
             QueryString queryString = new QueryString(requestTarget.substring(questionPos+1));
+            if (queryString.getParameter("body") != null){
+                contentLength = queryString.getParameter("body").length();
+            }
             if (queryString.getParameter("status") != null){
                 statusCode = queryString.getParameter("status");
             }
@@ -45,7 +49,7 @@ public class HttpServer {
         }
 
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
-                "Content-Length: 29\r\n" +
+                "Content-Length: " + contentLength + "\r\n" +
                 "Content-Type: text/plain\r\n" +
                 "\r\n" +
                 "Hello <strong>World</strong>!";
