@@ -41,7 +41,7 @@ public class HttpClient {
         while (!(headerLine = readLine(socket)).isEmpty()) {
             // response header consists of "name: value"
             int colonPos = headerLine.indexOf(':');
-            // parse header
+            // parse headerr
             String headerName = headerLine.substring(0, colonPos);
             String headerValue = headerLine.substring(colonPos+1).trim();
 
