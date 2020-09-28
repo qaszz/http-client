@@ -13,20 +13,29 @@ public class HttpClient {
 
     // Constructor - det osm kalles når vi sier new
     public HttpClient(final String hostName, int port, final String requestTarget) throws IOException {
+        this(hostName, port, requestTarget, "GET", null);
+    }
+
+    // Constructor - det osm kalles når vi sier new
+    public HttpClient(final String hostName, int port, final String requestTarget, final String httpMethod, String requestBody) throws IOException {
         // Connect til serveren
         Socket socket = new Socket(hostName, port);
 
+        String contentLengthHeader = requestBody != null ? "Content-Length: " + requestBody.length() + "\r\n": "";
         // HTTP request consists of request line + 0 or more request headers
         // request line consists of "verb" (GET, POST or PUT) reqyest target ("/echo", "/echo?status=404), protocol (HTTP/1,1)
-        String request = "GET " + requestTarget + " HTTP/1.1\r\n" +
+        String request = httpMethod + " " + requestTarget + " HTTP/1.1\r\n" +
                 // request header consists of "name: value"
                 // header host brukes for å angi hostnavnet i URL
-                "Host: " + hostName + "\r\n\r\n";
+                "Host: " + hostName + "\r\n" +
+                contentLengthHeader + "\r\n";
 
         // send request to server
         socket.getOutputStream().write(request.getBytes());
 
-
+        if (requestBody != null) {
+            socket.getOutputStream().write(requestBody.getBytes());
+        }
 
         //The first line in the response is called status line or response line
         // response line consists of protocol ("HTTP/1.1") status code (200, 400, 404, 500 osv) and status message
