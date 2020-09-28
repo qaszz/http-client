@@ -1,6 +1,7 @@
 package no.kristiania.http;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -38,6 +39,8 @@ public class HttpServer {
         String statusCode = "200";
         String body = "Hello <strong>World</strong>!";
 
+
+
         int questionPos = requestTarget.indexOf('?');
         if (questionPos != -1) {
             // body = helloo
@@ -49,6 +52,16 @@ public class HttpServer {
                 statusCode = queryString.getParameter("status");
             }
 
+        } else {
+            File file = new File(contentRoot, requestTarget);
+            statusCode = "200";
+            String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
+                    "Content-Length: " + file.length() + "\r\n" +
+                    "Content-Type: text/plain\r\n" +
+                    "\r\n";
+
+            clientSocket.getOutputStream().write(response.getBytes());
+            new FileInputStream(file).transferTo(clientSocket.getOutputStream());
         }
 
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
@@ -62,7 +75,8 @@ public class HttpServer {
     }
 
     public static void main(String[] args) throws IOException {
-        new HttpServer(8080);
+        HttpServer server = new HttpServer(8080);
+        server.setContentRoot(new File("src/main/resources"));
     }
 
     public void setContentRoot(File contentRoot) {

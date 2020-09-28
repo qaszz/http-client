@@ -45,7 +45,7 @@ class HttpServerTest {
         File contentRoot = new File("target/");
         server.setContentRoot(contentRoot);
 
-        String fileContent = "Hello world" + new Date();
+        String fileContent = "Hello world " + new Date();
         Files.writeString(new File(contentRoot,"test.txt").toPath(), fileContent);
 
         HttpClient client = new HttpClient("localhost", 10005, "/test.txt");
