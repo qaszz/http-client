@@ -1,10 +1,13 @@
 package no.kristiania.http;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class HttpServer {
+
+    private File contentRoot;
 
     public HttpServer(int port) throws IOException{
         // Opens an entry point to our program for network clients
@@ -60,5 +63,9 @@ public class HttpServer {
 
     public static void main(String[] args) throws IOException {
         new HttpServer(8080);
+    }
+
+    public void setContentRoot(File contentRoot) {
+        this.contentRoot = contentRoot;
     }
 }
