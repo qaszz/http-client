@@ -38,8 +38,10 @@ public class HttpServer {
         if (questionPos != -1) {
             // body = helloo
             QueryString queryString = new QueryString(requestTarget.substring(questionPos+1));
+            if (queryString.getParameter("status") != null){
+                statusCode = queryString.getParameter("status");
+            }
 
-            statusCode = queryString.getParameter("status");
         }
 
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
