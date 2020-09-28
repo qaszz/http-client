@@ -36,7 +36,7 @@ public class HttpServer {
 
         int questionPos = requestTarget.indexOf('?');
         if (questionPos != -1) {
-            // body = hello
+            // body = helloo
             QueryString queryString = new QueryString(requestTarget.substring(questionPos+1));
 
             statusCode = queryString.getParameter("status");
