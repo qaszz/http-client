@@ -15,7 +15,7 @@ public class HttpServer {
         ServerSocket serverSocket = new ServerSocket(port);
 
         // new Thread executes the code in a separate "thread", that is: In parallel
-        new Thread(() ->{ // anonymous function with code that will be executed in parallell
+        new Thread(() ->{ // anonymous function with code that will be executed in parallel
             while (true) {
                 try { //accept waits for a client to try to connect - blocks
                     handleRequest(serverSocket.accept());
@@ -55,9 +55,13 @@ public class HttpServer {
         } else {
             File file = new File(contentRoot, requestTarget);
             statusCode = "200";
+            String contentType = "text/plain";
+            if (file.getName().endsWith(".html")){
+                contentType = "text/html";
+            }
             String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
                     "Content-Length: " + file.length() + "\r\n" +
-                    "Content-Type: text/plain\r\n" +
+                    "Content-Type: " + contentType + "\r\n" +
                     "\r\n";
 
             clientSocket.getOutputStream().write(response.getBytes());
