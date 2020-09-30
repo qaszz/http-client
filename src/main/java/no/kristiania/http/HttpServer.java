@@ -35,7 +35,7 @@ public class HttpServer {
     private void handleRequest(Socket clientSocket) throws IOException {
         HttpMessage request = new HttpMessage(clientSocket);
         String requestLine = request.getStartLine();
-        System.out.println(requestLine);
+        System.out.println("REQUEST " + requestLine);
         // Example GET /index.html HTTP/1.1
         String requestMethod = requestLine.split(" ")[0];
 
@@ -74,6 +74,7 @@ public class HttpServer {
                     String body = file + " does not exist";
                     String response = "HTTP/1.1 404 Not Found\r\n" +
                             "Content-Length: " + body.length() + "\r\n" +
+
                             "\r\n" +
                             body;
 
@@ -89,6 +90,7 @@ public class HttpServer {
                 }
                 String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
                         "Content-Length: " + file.length() + "\r\n" +
+                        "Connection: close\r\n" +
                         "Content-Type: " + contentType + "\r\n" +
                         "\r\n";
 
@@ -110,7 +112,8 @@ public class HttpServer {
         body+= "</ul>";
         String response = "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: " + body.length() + "\r\n" +
-                "Content-Type: text/plain\r\n" +
+                "Connection: close\r\n" +
+                "Content-Type: text/html\r\n" +
                 "\r\n" +
                 body;
 
