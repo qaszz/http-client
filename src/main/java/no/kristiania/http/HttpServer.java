@@ -41,8 +41,7 @@ public class HttpServer {
 
         String requestTarget = requestLine.split(" ")[1];
         // Example GET /echo?body=hello HTTP/1.1
-        String statusCode = "200";
-        String body = "Hello <strong>World</strong>!";
+
 
 
 
@@ -50,6 +49,59 @@ public class HttpServer {
 
         String requestPath = questionPos != -1 ? requestTarget.substring(0, questionPos) : requestTarget;
 
+        if (requestMethod.equals("POST")){
+            QueryString requestParameter = new QueryString(request.getBody());
+
+            productNames.add(requestParameter.getParameter("productName"));
+            String body = "Okay";
+            String response = "HTTP/1.1 200 OK\r\n" +
+                    "Content-Length: " + body.length() + "\r\n" +
+                    "\r\n" +
+                    body;
+
+            // Write the response back to the client
+            clientSocket.getOutputStream().write(response.getBytes());
+
+        } else {
+            if (requestPath.equals("/echo")) {
+                handleEchoRequest(clientSocket, requestTarget, questionPos);
+
+            } else {
+                File file = new File(contentRoot, requestPath);
+                if (!file.exists()) {
+                    String body = file + " does not exist";
+                    String response = "HTTP/1.1 404 Not Found\r\n" +
+                            "Content-Length: " + body.length() + "\r\n" +
+                            "\r\n" +
+                            body;
+
+                    // Write the response back to the client
+                    clientSocket.getOutputStream().write(response.getBytes());
+                    return;
+                }
+
+                String statusCode = "200";
+                String contentType = "text/plain";
+                if (file.getName().endsWith(".html")){
+                    contentType = "text/html";
+                }
+                String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
+                        "Content-Length: " + file.length() + "\r\n" +
+                        "Content-Type: " + contentType + "\r\n" +
+                        "\r\n";
+
+                // Write the response back to the client
+                clientSocket.getOutputStream().write(response.getBytes());
+
+                new FileInputStream(file).transferTo(clientSocket.getOutputStream());
+                return;
+            }
+        }
+    }
+
+    private void handleEchoRequest(Socket clientSocket, String requestTarget, int questionPos) throws IOException {
+        String statusCode = "200";
+        String body = "Hello <strong>World</strong>!";
         if (questionPos != -1) {
             // body = helloo
             QueryString queryString = new QueryString(requestTarget.substring(questionPos + 1));
@@ -59,51 +111,7 @@ public class HttpServer {
             if (queryString.getParameter("body") != null) {
                 body = queryString.getParameter("body");
             }
-        } else if (requestMethod.equals("POST")){
-            QueryString requestParameter = new QueryString(request.getBody());
-
-            productNames.add(requestParameter.getParameter("productName"));
-            body = "Okay";
-            String response = "HTTP/1.1 200 OK\r\n" +
-                    "Content-Length: " + body.length() + "\r\n" +
-                    "\r\n" +
-                    body;
-
-            // Write the response back to the client
-            clientSocket.getOutputStream().write(response.getBytes());
-
-            return;
-        } else if (!requestPath.equals("/echo")){
-            File file = new File(contentRoot, requestPath);
-            if (!file.exists()) {
-                body = file + " does not exist";
-                String response = "HTTP/1.1 404 Not Found\r\n" +
-                        "Content-Length: " + body.length() + "\r\n" +
-                        "\r\n" +
-                        body;
-
-                // Write the response back to the client
-                clientSocket.getOutputStream().write(response.getBytes());
-                return;
-            }
-
-            statusCode = "200";
-            String contentType = "text/plain";
-            if (file.getName().endsWith(".html")){
-                contentType = "text/html";
-            }
-            String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
-                    "Content-Length: " + file.length() + "\r\n" +
-                    "Content-Type: " + contentType + "\r\n" +
-                    "\r\n";
-
-            // Write the response back to the client
-            clientSocket.getOutputStream().write(response.getBytes());
-
-            new FileInputStream(file).transferTo(clientSocket.getOutputStream());
-            return;
         }
-
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
                 "Content-Length: " + body.length() + "\r\n" +
                 "Content-Type: text/plain\r\n" +
