@@ -66,6 +66,8 @@ public class HttpServer {
             if (requestPath.equals("/echo")) {
                 handleEchoRequest(clientSocket, requestTarget, questionPos);
 
+            } else if (requestPath.equals("/api/products")){
+                handleGetProducts(clientSocket);
             } else {
                 File file = new File(contentRoot, requestPath);
                 if (!file.exists()) {
@@ -97,6 +99,23 @@ public class HttpServer {
                 return;
             }
         }
+    }
+
+    private void handleGetProducts(Socket clientSocket) throws IOException {
+        String body = "<ul>";
+        for (String productName : productNames) {
+            body+= "<li>" + productName + "</li>";
+        }
+
+        body+= "</ul>";
+        String response = "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: " + body.length() + "\r\n" +
+                "Content-Type: text/plain\r\n" +
+                "\r\n" +
+                body;
+
+        // Write the response back to the client
+        clientSocket.getOutputStream().write(response.getBytes());
     }
 
     private void handleEchoRequest(Socket clientSocket, String requestTarget, int questionPos) throws IOException {
