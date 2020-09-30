@@ -8,7 +8,7 @@ import java.util.Map;
 public class HttpClient {
 
     private int statusCode;
-    private final Map<String, String> responseHeaders = new HashMap<>();
+    private Map<String, String> responseHeaders = new HashMap<>();
     private String responseBody;
 
     // Constructor - det osm kalles når vi sier new
@@ -37,52 +37,20 @@ public class HttpClient {
             socket.getOutputStream().write(requestBody.getBytes());
         }
 
-        //The first line in the response is called status line or response line
+
+        HttpMessage response = new HttpMessage(socket);
+        //The start line in the response is called status line or response line
         // response line consists of protocol ("HTTP/1.1") status code (200, 400, 404, 500 osv) and status message
-        String responseLine = readLine(socket);
+        String responseLine = response.getStartLine();
+        responseHeaders = response.getHeaders();
+        responseBody = response.getBody();
+
         String[] responseLineParts = responseLine.split(" ");
 
         // Status code determines if it went ok (2xx) or not (4xx). (In addition 5xx: server error)
         statusCode = Integer.parseInt(responseLineParts[1]);
-
-        // After status line in the response contains 0 or more response headers
-        String headerLine;
-        while (!(headerLine = readLine(socket)).isEmpty()) {
-            // response header consists of "name: value"
-            int colonPos = headerLine.indexOf(':');
-            // parse headerr
-            String headerName = headerLine.substring(0, colonPos);
-            String headerValue = headerLine.substring(colonPos+1).trim();
-
-            // store headers
-            responseHeaders.put(headerName, headerValue);
-        }
-
-        // Response header content-length tells how many bytes the response body is
-        int contentLength = Integer.parseInt(getResponseHeader("Content-Length"));
-        StringBuilder body = new StringBuilder();
-        for (int i = 0; i < contentLength; i++) {
-            // read content body based on content-length
-            body.append((char)socket.getInputStream().read());
-        }
-        responseBody = body.toString();
     }
 
-
-
-    public static String readLine(Socket socket) throws IOException {
-        StringBuilder line = new StringBuilder();
-        int c;
-        while ((c = socket.getInputStream().read()) != -1) {
-            // each line ends with r\n ( CRLF - carriage return, line feed)
-            if (c == '\r') {
-                socket.getInputStream().read(); //read and ignore the following \n
-                break;
-            };
-            line.append((char) c);
-        }
-        return line.toString();
-    }
 
     public static void main(String[] args) throws IOException {
         HttpClient client = new HttpClient("urlecho.appspot.com", 80, "/echo?status=200&Content-Type=text%2Fhtml&body=Hei%20Kristiania");

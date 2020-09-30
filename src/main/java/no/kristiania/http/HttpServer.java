@@ -33,7 +33,7 @@ public class HttpServer {
 
     // This code will be executed for each client
     private void handleRequest(Socket clientSocket) throws IOException {
-        String requestLine = HttpClient.readLine(clientSocket);
+        String requestLine = HttpMessage.readLine(clientSocket);
         System.out.println(requestLine);
         // Example GET /index.html HTTP/1.1
 
@@ -76,6 +76,7 @@ public class HttpServer {
                 clientSocket.getOutputStream().write(response.getBytes());
                 return;
             }
+
             statusCode = "200";
             String contentType = "text/plain";
             if (file.getName().endsWith(".html")){
@@ -90,6 +91,7 @@ public class HttpServer {
             clientSocket.getOutputStream().write(response.getBytes());
 
             new FileInputStream(file).transferTo(clientSocket.getOutputStream());
+            return;
         }
 
         String response = "HTTP/1.1 " + statusCode + " OK\r\n" +
