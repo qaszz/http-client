@@ -37,6 +37,7 @@ public class HttpServer {
         String requestLine = request.getStartLine();
         System.out.println(requestLine);
         // Example GET /index.html HTTP/1.1
+        String requestMethod = requestLine.split(" ")[0];
 
         String requestTarget = requestLine.split(" ")[1];
         // Example GET /echo?body=hello HTTP/1.1
@@ -47,23 +48,31 @@ public class HttpServer {
 
         int questionPos = requestTarget.indexOf('?');
 
-        String requestPath;
-        if (questionPos != -1) {
-            requestPath = requestTarget.substring(0, questionPos);
-        } else {
-            requestPath = requestTarget;
-        }
+        String requestPath = questionPos != -1 ? requestTarget.substring(0, questionPos) : requestTarget;
 
         if (questionPos != -1) {
             // body = helloo
-            QueryString queryString = new QueryString(requestTarget.substring(questionPos+1));
-            if (queryString.getParameter("body") != null){
-                body = queryString.getParameter("body");
-            }
-            if (queryString.getParameter("status") != null){
+            QueryString queryString = new QueryString(requestTarget.substring(questionPos + 1));
+            if (queryString.getParameter("status") != null) {
                 statusCode = queryString.getParameter("status");
             }
+            if (queryString.getParameter("body") != null) {
+                body = queryString.getParameter("body");
+            }
+        } else if (requestMethod.equals("POST")){
+            QueryString requestParameter = new QueryString(request.getBody());
 
+            productNames.add(requestParameter.getParameter("productName"));
+            body = "Okay";
+            String response = "HTTP/1.1 200 OK\r\n" +
+                    "Content-Length: " + body.length() + "\r\n" +
+                    "\r\n" +
+                    body;
+
+            // Write the response back to the client
+            clientSocket.getOutputStream().write(response.getBytes());
+
+            return;
         } else if (!requestPath.equals("/echo")){
             File file = new File(contentRoot, requestPath);
             if (!file.exists()) {
