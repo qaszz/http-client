@@ -53,7 +53,7 @@ public class HttpServer {
             QueryString requestParameter = new QueryString(request.getBody());
 
             productNames.add(requestParameter.getParameter("productName"));
-            String body = "Okay";
+            String body = "You have added a new product!";
             String response = "HTTP/1.1 200 OK\r\n" +
                     "Content-Length: " + body.length() + "\r\n" +
                     "\r\n" +
