@@ -65,7 +65,6 @@ public class HttpServer {
         } else {
             if (requestPath.equals("/echo")) {
                 handleEchoRequest(clientSocket, requestTarget, questionPos);
-
             } else if (requestPath.equals("/api/products")){
                 handleGetProducts(clientSocket);
             } else {
